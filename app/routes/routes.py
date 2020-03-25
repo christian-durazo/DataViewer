@@ -6,12 +6,14 @@ from flask import render_template, request
 from app import app
 from app.utilities import stringUtils, sendMail
 from .users import users
+from .databases import databases
 
 UPLOAD_FOLDER = os.path.dirname(__file__) + '/static/images/'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.register_blueprint(users)
+app.register_blueprint(databases)
 
 file = open("app/key.txt")
 app.secret_key = file.readline()
@@ -22,7 +24,8 @@ illegalCharactersForNames = '{}[]<>,./\\()1234567890`~"?!@#$%^&*_+=|:;'
 
 @app.route('/')
 def index():
-	return render_template('index.html')
+	user = "Christian Durazo"  # TODO add user auth
+	return render_template('index.html', user=user)
 
 
 @app.route('/charts')
@@ -62,20 +65,22 @@ def tables():
 
 @app.route('/error')
 def error():
-	return render_template('404.html', title="Error")
+	return render_template('404.html')
+
 
 @app.errorhandler(500)
-def server_error(error):
-	return render_template('500.html', title="Error")
+def server_error():
+	return render_template('500.html')
+
 
 @app.errorhandler(401)
-def unauthorized(error):
-	return render_template('401.html', title="Page Not Found"), 404
+def unauthorized():
+	return render_template('401.html'), 404
 
 
 @app.errorhandler(404)
-def page_not_found(error):
-	return render_template('404.html', title="Page Not Found"), 404
+def page_not_found():
+	return render_template('404.html'), 404
 
 
 @app.context_processor

@@ -4,6 +4,6 @@ import hashlib
 
 from app import app
 
-app.config['MONGO_DBNAME'] = 'bowlingdb'
-app.config['MONGO_URI'] = 'mongodb://localhost:27017/bowlingdb'
+app.config['MONGO_DBNAME'] = 'dataViewer'
+app.config['MONGO_URI'] = 'mongodb://localhost:27017/dataViewer'
 mongo = PyMongo(app)
