@@ -1,5 +1,6 @@
 from flask import Flask, jsonify, request, session, redirect, url_for, escape, Blueprint
 from flask_pymongo import PyMongo
+import ast
 from app.utilities import stringUtils, sendMail
 from app import app
 
@@ -13,7 +14,8 @@ def mongo():
     mongo = PyMongo(app)
 
     collection = request.form['collection']
-    query = eval(request.form['query'])
+    print(ast.literal_eval(request.form['query']))
+    query = ast.literal_eval(request.form['query'])
 
     results = mongo.db[collection].find(query, {"_id": 0})
     json_results = []
