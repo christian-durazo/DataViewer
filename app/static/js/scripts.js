@@ -26,7 +26,7 @@ Chart.defaults.global.defaultFontFamily = '-apple-system,system-ui,BlinkMacSyste
 Chart.defaults.global.defaultFontColor = '#292b2c';
 
 // Area Chart Example
-var ctx = document.getElementById("chart");
+/*var ctx = document.getElementById("chart");
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
@@ -74,7 +74,7 @@ var myLineChart = new Chart(ctx, {
       display: false
     }
   }
-});
+});*/
 
 // Call the dataTables jQuery plugin
 //$(document).ready(function() {
@@ -83,6 +83,7 @@ var myLineChart = new Chart(ctx, {
 
 $(document).ready(function() {
   let datatable;
+  let chart;
   $('#queryLanguage').on('change', function () {
     $('.queryLangauge').addClass("hidden");
     switch($('#queryLanguage').val()){
@@ -94,6 +95,7 @@ $(document).ready(function() {
             break;
          default:
             // code block
+            break;
     }
   });
 
@@ -101,6 +103,10 @@ $(document).ready(function() {
     if (datatable != undefined) {
         datatable.destroy();
         $('#dataTable').empty();
+    }
+    if (chart != undefined) {
+        chart.destroy();
+        $('#chart').empty();
     }
     let query = $('#query').val();
     let databaseuri = $('#databaseuri').val();
@@ -112,16 +118,95 @@ $(document).ready(function() {
         type: 'POST',
         data: { query: query, databaseuri: databaseuri, database: database, collection: collection},
         success: function (data, status, xhr) {
+            let table = document.getElementById('dataTable');
             let dataset = data.data;
             let columns = data.titles;
             datatable = $('#dataTable').DataTable({
                "data": dataset,
                "columns": columns
             });
+
+            let json = [];
+            let headers = [];
+            for (var i = 0; i < table.rows[0].cells.length; i++) {
+              headers[i] = table.rows[0].cells[i].innerHTML.toLowerCase().replace(/ /gi, '');
+            }
+
+            for (var i = 1; i < table.rows.length; i++) {
+              var tableRow = table.rows[i];
+              var rowData = {};
+              for (var j = 0; j < tableRow.cells.length; j++) {
+                rowData[headers[j]] = tableRow.cells[j].innerHTML;
+              }
+              json.push(rowData);
+            }
+
+            labels = "name"
+            values = "wins"
+
+            let x = json.map(function (e) {
+              return e[labels];
+            });
+
+            let y = json.map(function (e) {
+              return e[values];
+            });
+
+            chart = BuildChart(x, y, "Wins");
         },
         error: function (jqXhr, textStatus, errorMessage) {
             alert('Error' + errorMessage);
         }
     });
+
+    function BuildChart(labels, values, chartTitle) {
+      let ctx = document.getElementById("chart").getContext('2d');
+      let chart = new Chart(ctx, {
+        type: 'bar',
+        legend: {
+            display: false
+        },
+        data: {
+          labels: labels,
+          datasets: [{
+            label: chartTitle,
+            data: values,
+            backgroundColor: [
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)',
+              'rgba(255, 99, 132, 0.2)',
+              'rgba(54, 162, 235, 0.2)',
+              'rgba(255, 206, 86, 0.2)',
+              'rgba(75, 192, 192, 0.2)',
+              'rgba(153, 102, 255, 0.2)',
+              'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)',
+              'rgba(255,99,132,1)',
+              'rgba(54, 162, 235, 1)',
+              'rgba(255, 206, 86, 1)',
+              'rgba(75, 192, 192, 1)',
+              'rgba(153, 102, 255, 1)',
+              'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+          }]
+        },
+        options: {
+          responsive: true
+        }
+      });
+      return chart;
+    }
   });
 })

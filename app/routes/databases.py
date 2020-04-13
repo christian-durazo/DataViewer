@@ -14,7 +14,6 @@ def mongo():
     mongo = PyMongo(app)
 
     collection = request.form['collection']
-    print(ast.literal_eval(request.form['query']))
     query = ast.literal_eval(request.form['query'])
 
     results = mongo.db[collection].find(query, {"_id": 0})
